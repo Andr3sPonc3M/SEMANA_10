@@ -1,0 +1,4 @@
+0001,Laptop,21,450.0
+0002,Rack 12ur,9,180.0
+0003,switch 24 puertos POE 10/100/1000,8,295.0
+0004,Router giga 5 puertos,15,29.0
