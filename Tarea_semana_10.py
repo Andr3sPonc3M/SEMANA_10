@@ -1,8 +1,7 @@
-# Semana 9
-# Tarea: Sistema de Gestión de Inventarios
+# Semana 10
+# Tarea: Manipulación de archivos y manejo de excepciones
 
 import os
-
 
 class Producto:
     def __init__(self, id_producto, nombre, cantidad, precio):
@@ -38,7 +37,7 @@ class Producto:
     def mostrar_info(self):
         return f"ID: {self._id_producto}, Nombre: {self._nombre}, Cantidad: {self._cantidad}, Precio: {self._precio}"
 
-    # Método para formatear los datos del producto en una línea de texto
+    # Método para crear los datos del producto en una línea de texto
     def a_texto(self):
         return f"{self._id_producto},{self._nombre},{self._cantidad},{self._precio}"
 
@@ -191,8 +190,6 @@ def menu():
 # Ejecución del menú si se ejecuta como script principal
 if __name__ == "__main__":
     menu()
-
-
 
 # Universidad Estatal Amazónica
 # Andrés Ponce M.
