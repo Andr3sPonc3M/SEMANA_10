@@ -1,7 +1,9 @@
 # Semana 9
 # Tarea: Sistema de Gestión de Inventarios
 
-# Ingresar los atributos del producto
+import os
+
+
 class Producto:
     def __init__(self, id_producto, nombre, cantidad, precio):
         # Atributos del producto
@@ -10,7 +12,7 @@ class Producto:
         self._cantidad = cantidad  # Cantidad en inventario
         self._precio = precio  # Precio del producto
 
-    # funciones para leer y escribir cada atributo
+    # Métodos para leer y escribir cada atributo
     def get_id_producto(self):
         return self._id_producto
 
@@ -32,54 +34,92 @@ class Producto:
     def set_precio(self, precio):
         self._precio = precio
 
-    # Maneras de mostrar la información del producto
+    # Método para mostrar la información del producto
     def mostrar_info(self):
         return f"ID: {self._id_producto}, Nombre: {self._nombre}, Cantidad: {self._cantidad}, Precio: {self._precio}"
 
+    # Método para formatear los datos del producto en una línea de texto
+    def a_texto(self):
+        return f"{self._id_producto},{self._nombre},{self._cantidad},{self._precio}"
 
 
-# Inventario
 class Inventario:
-    def __init__(self):
-        # Crear lista para almacenar los productos
+    def __init__(self, archivo):
+        # Inicializa la lista de productos y el nombre del archivo
         self.productos = []
+        self.archivo = archivo
+        self.cargar_desde_archivo()
 
-    # Formas de añadir o eliminar productos
+    # Método para cargar los productos desde un archivo
+    def cargar_desde_archivo(self):
+        try:
+            if os.path.exists(self.archivo):
+                with open(self.archivo, 'r') as f:
+                    for linea in f:
+                        id_producto, nombre, cantidad, precio = linea.strip().split(',')
+                        producto = Producto(id_producto, nombre, int(cantidad), float(precio))
+                        self.productos.append(producto)
+                print("Inventario cargado desde archivo con éxito.")  # código exitoso
+            else:
+                print(f"Archivo '{self.archivo}' no encontrado, se creará uno nuevo.")  # código informativo
+        except FileNotFoundError:
+            print(f"Error: El archivo '{self.archivo}' no fue encontrado.")  # manejo de excepción
+        except PermissionError:
+            print(f"Error: Permiso denegado para leer el archivo '{self.archivo}'.")  # manejo de excepción
+        except Exception as e:
+            print(f"Error inesperado al leer el archivo: {e}")  # manejo de excepción genérica
 
+    # Método para guardar los productos en un archivo
+    def guardar_en_archivo(self):
+        try:
+            with open(self.archivo, 'w') as f:
+                for producto in self.productos:
+                    f.write(producto.a_texto() + '\n')
+            print("Inventario guardado en archivo con éxito.")  # código exitoso
+        except PermissionError:
+            print(f"Error: Permiso denegado para escribir en el archivo '{self.archivo}'.")  # manejo de excepción
+        except Exception as e:
+            print(f"Error inesperado al escribir en el archivo: {e}")  # manejo de excepción genérica
+
+    # Método para añadir un producto al inventario
     def añadir_producto(self, producto):
-        # Verificar que el ID del producto sea único antes de añadirlo
+        # Verifica que el ID del producto sea único antes de añadirlo
         for p in self.productos:
             if p.get_id_producto() == producto.get_id_producto():
-                print("Error: Ya existe un producto con ese ID.") # código de error
+                print("Error: Ya existe un producto con ese ID.")  # código de error
                 return
         self.productos.append(producto)
-        print("Producto añadido con éxito.") # código exitoso
+        self.guardar_en_archivo()  # guarda el inventario en archivo
+        print("Producto añadido con éxito.")  # código exitoso
 
+    # Método para eliminar un producto del inventario por ID
     def eliminar_producto(self, id_producto):
-        # Eliminar producto por ID
+        # Elimina el producto por su ID
         for p in self.productos:
             if p.get_id_producto() == id_producto:
                 self.productos.remove(p)
-                print("Producto eliminado con éxito.") # código exitoso
+                self.guardar_en_archivo()  # guarda el inventario en archivo
+                print("Producto eliminado con éxito.")  # código exitoso
                 return
-        print("Error: Producto no encontrado.") # código de error
+        print("Error: Producto no encontrado.")  # código de error
 
-    # Formas de modificar el inventario
-
+    # Método para actualizar un producto en el inventario
     def actualizar_producto(self, id_producto, cantidad=None, precio=None):
-        # Actualizar cantidad o precio de un producto por ID
+        # Actualiza la cantidad o el precio del producto por ID
         for p in self.productos:
             if p.get_id_producto() == id_producto:
                 if cantidad is not None:
                     p.set_cantidad(cantidad)
                 if precio is not None:
                     p.set_precio(precio)
-                print("Producto actualizado con éxito.") # código exitoso
+                self.guardar_en_archivo()  # guarda el inventario en archivo
+                print("Producto actualizado con éxito.")  # código exitoso
                 return
-        print("Error: Producto no encontrado.") # código de error
+        print("Error: Producto no encontrado.")  # código de error
 
+    # Método para buscar un producto en el inventario por nombre
     def buscar_producto(self, nombre):
-        # Buscar productos por nombre (puede haber nombres similares)
+        # Busca productos por nombre (puede haber nombres similares)
         resultados = [p for p in self.productos if nombre.lower() in p.get_nombre().lower()]
         if resultados:
             for p in resultados:
@@ -87,8 +127,9 @@ class Inventario:
         else:
             print("No se encontraron productos con ese nombre.")
 
+    # Método para mostrar todos los productos en el inventario
     def mostrar_todos(self):
-        # Mostrar todos los productos en el inventario
+        # Muestra todos los productos en el inventario
         if self.productos:
             for p in self.productos:
                 print(p.mostrar_info())
@@ -96,13 +137,10 @@ class Inventario:
             print("El inventario está vacío.")
 
 
-
-
-# Impresión en pantalla
-# Menu de opciones
-
+# Función para mostrar el menú de opciones
 def menu():
-    inventario = Inventario()
+    # Inicializa el inventario con el archivo de almacenamiento
+    inventario = Inventario("inventario.txt")
 
     while True:
         print("\nSistema de Gestión de Inventarios")
@@ -150,8 +188,10 @@ def menu():
             print("Opción no válida. Intente de nuevo.")
 
 
+# Ejecución del menú si se ejecuta como script principal
 if __name__ == "__main__":
     menu()
+
 
 
 # Universidad Estatal Amazónica
